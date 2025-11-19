@@ -82,7 +82,7 @@ runs:
       run: |
         for FILE in $NEW_FILES; do
           echo -------- $FILE
-          minutes_to_gh manual --file ../repo/$MINUTES_REPO_PATH/$FILE --url $MINUTES_URL_BASE/$FILE $M2G_EXTRA_OPTIONS
+          minutes_to_gh manual --file ./repo/$MINUTES_REPO_PATH/$FILE --url $MINUTES_URL_BASE/$FILE $M2G_EXTRA_OPTIONS
         done
       shell: bash
 
