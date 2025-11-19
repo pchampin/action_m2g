@@ -1,0 +1,89 @@
+name: 'Minutes 2 Github'
+description: 'Locate github issues discussed in meeting minutes, and link to the minutes in the issue thread'
+inputs:
+  minutes-url-base:
+    description: 'Base URL of the minutes (without trailing slash)'
+    required: true
+  minutes-repo-path:
+    description: 'Path of the minutes in the repository (without trailing slash)'
+    required: true
+  m2g-channel:
+    description: 'IRC channel (without leading hash, e.g. "pmwg")'
+    required: true
+  m2g-group:
+    description: 'W3C group (e.g. "wg/pm", defaults to "wg/{m2g-channel}")'
+    required: false
+  m2g-transcript:
+    description: 'indicates whether the comment on github should include a transcript of the minutes'
+    required: false
+    default: "false"
+  m2g-log-level:
+    description: 'the verbosity of logging for m2g'
+    required: false
+    default: "info"
+  m2g-extra-options:
+    description: 'additional options to pass to m2g'
+    required: false
+    default: ""
+# outputs:
+#   random-number:
+#     description: "Random number"
+#     value: ${{ steps.random-number-generator.outputs.random-number }}
+runs:
+  using: "composite"
+  steps:
+    - name: Checkout this repository
+      uses: actions/checkout@v4
+      with:
+        path: ./repo
+        fetch-depth: 0
+
+    - name: Add list of new (and modified) files to env
+      working-directory: ${{ format('./repo/{0}', inputs.minutes-repo-path) }}
+      run: |
+          {
+            echo "NEW_FILES<<.EOF"
+
+            git diff --name-status ${{ github.event.before }} ${{ github.event.after }} \
+            | grep  '^[AM]\s\+${{ inputs.minutes-repo-path }}/.*\.html$' \
+            | sed 's!^[AM]\s\+${{ inputs.minutes-repo-path }}/!!' \
+            | tee /dev/stderr
+
+            echo ".EOF"
+          } >> "$GITHUB_ENV"
+
+    - name: Set up Rust
+      if: ${{ env.NEW_FILES }}
+      uses: dtolnay/rust-toolchain@stable
+
+    - name: Checkout minutes_to_gh
+      if: ${{ env.NEW_FILES }}
+      uses: actions/checkout@v4
+      with:
+        repository: pchampin/minutes_to_gh
+        path: ./m2g
+
+    - name: Build minutes_to_gh
+      if: ${{ env.NEW_FILES }}
+      working-directory: ./m2g
+      run: cargo build --verbose
+
+    - name: Run minutes_to_gh for each new file
+      if: ${{ env.NEW_FILES }}
+      working-directory: ./m2g
+      env:
+        MINUTES_REPO_PATH: ${{ inputs.minutes-repo-path }}
+        MINUTES_URL_BASE: ${{ inputs.minutes-url-base}}
+        # env variables used by minutes_to_github
+        M2G_CHANNEL: ${{ inputs.m2g-channel }}
+        M2G_GROUP: ${{ inputs.m2g-group }}
+        M2G_TRANSCRIPT: ${{ inputs.m2g-transcript }}
+        M2G_TOKEN: ${{ secrets.M2G_TOKEN }}
+        M2G_LOG_LEVEL: ${{ trace }}
+
+      run: |
+        for FILE in $NEW_FILES; do
+          echo -------- $FILE
+          cargo run -- manual --file ../repo/$MINUTES_REPO_PATH/$FILE --url $MINUTES_URL_BASE/$FILE $M2G_EXTRA_OPTS
+        done
+
