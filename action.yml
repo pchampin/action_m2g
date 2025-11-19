@@ -60,22 +60,13 @@ runs:
       if: ${{ env.NEW_FILES }}
       uses: dtolnay/rust-toolchain@stable
 
-    - name: Checkout minutes_to_gh
-      if: ${{ env.NEW_FILES }}
-      uses: actions/checkout@v4
-      with:
-        repository: pchampin/minutes_to_gh
-        path: ./m2g
-
     - name: Build minutes_to_gh
       if: ${{ env.NEW_FILES }}
-      working-directory: ./m2g
-      run: cargo build --verbose
+      run: cargo install --git https://github.com/pchampin/minutes_to_gh
       shell: bash
 
     - name: Run minutes_to_gh for each new file
       if: ${{ env.NEW_FILES }}
-      working-directory: ./m2g
       env:
         # env variables used explicitly in the command below
         MINUTES_REPO_PATH: ${{ inputs.minutes-repo-path }}
@@ -91,7 +82,7 @@ runs:
       run: |
         for FILE in $NEW_FILES; do
           echo -------- $FILE
-          cargo run -- manual --file ../repo/$MINUTES_REPO_PATH/$FILE --url $MINUTES_URL_BASE/$FILE $M2G_EXTRA_OPTIONS
+          minutes_to_gh manual --file ../repo/$MINUTES_REPO_PATH/$FILE --url $MINUTES_URL_BASE/$FILE $M2G_EXTRA_OPTIONS
         done
       shell: bash
 
