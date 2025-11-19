@@ -65,7 +65,7 @@ runs:
 
     - name: Build minutes_to_gh
       if: ${{ env.NEW_FILES }}
-      run: cargo install --git https://github.com/pchampin/minutes_to_gh
+      run: cargo install --git https://github.com/pchampin/minutes_to_gh --force
       shell: bash
 
     - name: Run minutes_to_gh for each new file
