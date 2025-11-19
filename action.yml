@@ -62,13 +62,10 @@ runs:
 
     - name: Configure cache for Rust dependencies
       uses: Swatinem/rust-cache@v2
-      with:
-        cache-all-crates: true
-        cache-bin: false
 
     - name: Build minutes_to_gh
       if: ${{ env.NEW_FILES }}
-      run: cargo install --git https://github.com/pchampin/minutes_to_gh
+      run: cargo install --git https://github.com/pchampin/minutes_to_gh --tag v0.10.0
       shell: bash
 
     - name: Run minutes_to_gh for each new file
