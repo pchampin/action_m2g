@@ -5,7 +5,10 @@ inputs:
     description: 'Base URL of the minutes (without trailing slash)'
     required: true
   minutes-repo-path:
-    description: 'Path of the minutes in the repository (without trailing slash)'
+    description: 'Relative path of the minutes in the repository (without trailing or leading slash)'
+    required: true
+  m2g-token:
+    description: 'Github token usable by minutes_to_github'
     required: true
   m2g-channel:
     description: 'IRC channel (without leading hash, e.g. "pmwg")'
@@ -74,12 +77,13 @@ runs:
       env:
         MINUTES_REPO_PATH: ${{ inputs.minutes-repo-path }}
         MINUTES_URL_BASE: ${{ inputs.minutes-url-base}}
+        M2G_EXTRA_OPTS: ${{ inputs.m2g-extra-opts }}
         # env variables used by minutes_to_github
         M2G_CHANNEL: ${{ inputs.m2g-channel }}
         M2G_GROUP: ${{ inputs.m2g-group }}
+        M2G_LOG_LEVEL: ${{ inputs.m2g-log-level}}
+        M2G_TOKEN: ${{ inputs.m2g-token }}
         M2G_TRANSCRIPT: ${{ inputs.m2g-transcript }}
-        M2G_TOKEN: ${{ secrets.M2G_TOKEN }}
-        M2G_LOG_LEVEL: ${{ trace }}
 
       run: |
         for FILE in $NEW_FILES; do
