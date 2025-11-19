@@ -77,10 +77,11 @@ runs:
       if: ${{ env.NEW_FILES }}
       working-directory: ./m2g
       env:
+        # env variables used explicitly in the command below
         MINUTES_REPO_PATH: ${{ inputs.minutes-repo-path }}
         MINUTES_URL_BASE: ${{ inputs.minutes-url-base}}
-        M2G_EXTRA_OPTS: ${{ inputs.m2g-extra-opts }}
-        # env variables used by minutes_to_github
+        M2G_EXTRA_OPTIONS: ${{ inputs.m2g-extra-options }}
+        # env variables used implicitly by minutes_to_github
         M2G_CHANNEL: ${{ inputs.m2g-channel }}
         M2G_GROUP: ${{ inputs.m2g-group }}
         M2G_LOG_LEVEL: ${{ inputs.m2g-log-level}}
@@ -90,7 +91,7 @@ runs:
       run: |
         for FILE in $NEW_FILES; do
           echo -------- $FILE
-          cargo run -- manual --file ../repo/$MINUTES_REPO_PATH/$FILE --url $MINUTES_URL_BASE/$FILE $M2G_EXTRA_OPTS
+          cargo run -- manual --file ../repo/$MINUTES_REPO_PATH/$FILE --url $MINUTES_URL_BASE/$FILE $M2G_EXTRA_OPTIONS
         done
       shell: bash
 
