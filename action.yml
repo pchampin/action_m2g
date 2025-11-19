@@ -54,6 +54,7 @@ runs:
 
             echo ".EOF"
           } >> "$GITHUB_ENV"
+      shell: bash
 
     - name: Set up Rust
       if: ${{ env.NEW_FILES }}
@@ -70,6 +71,7 @@ runs:
       if: ${{ env.NEW_FILES }}
       working-directory: ./m2g
       run: cargo build --verbose
+      shell: bash
 
     - name: Run minutes_to_gh for each new file
       if: ${{ env.NEW_FILES }}
@@ -90,4 +92,5 @@ runs:
           echo -------- $FILE
           cargo run -- manual --file ../repo/$MINUTES_REPO_PATH/$FILE --url $MINUTES_URL_BASE/$FILE $M2G_EXTRA_OPTS
         done
+      shell: bash
 
