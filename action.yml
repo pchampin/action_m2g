@@ -48,7 +48,7 @@ runs:
             echo "NEW_FILES<<.EOF"
 
             git diff --name-status ${{ github.event.before }} ${{ github.event.after }} \
-            | grep  '^[AM]\s\+${{ inputs.minutes-repo-path }}/.*\.html$' \
+            | ( grep  '^[AM]\s\+${{ inputs.minutes-repo-path }}/.*\.html$' || true) \
             | sed 's!^[AM]\s\+${{ inputs.minutes-repo-path }}/!!' \
             | tee /dev/stderr
 
